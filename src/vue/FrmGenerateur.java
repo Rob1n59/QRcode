@@ -50,4 +50,9 @@ public class FrmGenerateur extends JFrame {
         lblStatus.setText(message);
         lblStatus.setForeground(color);
     }
+
+	public void afficherQRCode(String imagePath) {
+		// TODO Auto-generated method stub
+		
+	}
 }

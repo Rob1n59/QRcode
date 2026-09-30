@@ -13,9 +13,6 @@ public class GenerateurPDF {
         PdfWriter.getInstance(document, new FileOutputStream(nomFichierPDF));
         document.open();
         
-        document.add(new Paragraph("Donnee saisie : " + texte));
-        document.add(new Paragraph(" "));
-        
         Image imageQR = Image.getInstance(cheminImageQR);
         imageQR.setAlignment(Image.ALIGN_CENTER);
         document.add(imageQR);

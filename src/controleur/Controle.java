@@ -1,6 +1,8 @@
 package controleur;
 
 import java.awt.Color;
+import java.awt.Desktop;
+import java.io.File;
 import javax.swing.SwingUtilities;
 import modele.GenerateurQR;
 import modele.GenerateurPDF;
@@ -28,7 +30,13 @@ public class Controle {
             generateurQR.creerQRCode(data, imagePath);
             generateurPDF.creerPDF(data, imagePath, pdfPath);
             
+            frmGenerateur.afficherQRCode(imagePath);
             frmGenerateur.setStatus("PDF généré avec succès !", new Color(0, 150, 0));
+            
+            File pdfFile = new File(pdfPath);
+            if (Desktop.isDesktopSupported() && pdfFile.exists()) {
+                Desktop.getDesktop().open(pdfFile);
+            }
         } catch (Exception e) {
             frmGenerateur.setStatus("Erreur lors de la génération.", Color.RED);
         }
