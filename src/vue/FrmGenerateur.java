@@ -109,4 +109,16 @@ public class FrmGenerateur extends JFrame {
         revalidate();
         repaint();
     }
+
+    public void setValeursProfil(String police, String couleur, String cheminImage) {
+        if (police != null) comboPolice.setSelectedItem(police);
+        if (couleur != null) comboCouleur.setSelectedItem(couleur);
+        if (cheminImage != null && !cheminImage.trim().isEmpty()) {
+            File imgFile = new File(cheminImage);
+            if (imgFile.exists()) {
+                this.imageChoisieChemin = cheminImage;
+                this.lblCheminImage.setText(imgFile.getName());
+            }
+        }
+    }
 }
