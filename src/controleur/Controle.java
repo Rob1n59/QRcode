@@ -5,6 +5,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.util.Properties;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import modele.GenerateurQR;
 import modele.GenerateurPDF;
 import modele.GestionProfil;
@@ -36,47 +37,55 @@ public class Controle {
     }
 
     public void demandeGeneration(String data) {
-        frmGenerateur.setStatus("Génération en cours...", Color.ORANGE);
-        try {
-            String imagePath = "qrcode.png";
-            String pdfPath = "resultat.pdf";
-            
-            generateurQR.creerQRCode(data, imagePath);
-            generateurPDF.creerPDF(data, imagePath, pdfPath);
-            
-            frmGenerateur.afficherQRCode(imagePath);
-            frmGenerateur.setStatus("PDF généré avec succès !", new Color(0, 150, 0));
-            
-            File pdfFile = new File(pdfPath);
-            if (Desktop.isDesktopSupported() && pdfFile.exists()) {
-                Desktop.getDesktop().open(pdfFile);
-            }
-        } catch (Exception e) {
-            frmGenerateur.setStatus("Erreur lors de la génération.", Color.RED);
-        }
     }
 
     public void demandeGenerationAvancee(String data, String police, String couleur, String cheminImageAjoutee) {
         frmGenerateur.setStatus("Génération en cours...", Color.ORANGE);
-        try {
-            gestionProfil.sauvegarderProfil(police, couleur, cheminImageAjoutee);
-            
-            String imagePath = "qrcode.png";
-            String pdfPath = "resultat.pdf";
-            
-            generateurQR.creerQRCode(data, imagePath);
-            generateurPDF.creerPDFAvance(data, imagePath, pdfPath, police, couleur, cheminImageAjoutee);
-            
-            frmGenerateur.afficherQRCode(imagePath);
-            frmGenerateur.setStatus("PDF généré avec succès !", new Color(0, 150, 0));
-            
-            File pdfFile = new File(pdfPath);
-            if (Desktop.isDesktopSupported() && pdfFile.exists()) {
-                Desktop.getDesktop().open(pdfFile);
+        frmGenerateur.setProgress(10, "Sauvegarde du profil...");
+        
+        SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+            protected Void doInBackground() throws Exception {
+                gestionProfil.sauvegarderProfil(police, couleur, cheminImageAjoutee);
+                setProgress(30);
+                Thread.sleep(300); 
+                
+                String imagePath = "qrcode.png";
+                String pdfPath = "resultat.pdf";
+                
+                setProgress(50);
+                generateurQR.creerQRCode(data, imagePath);
+                Thread.sleep(300);
+                
+                setProgress(80);
+                generateurPDF.creerPDFAvance(data, imagePath, pdfPath, police, couleur, cheminImageAjoutee);
+                
+                setProgress(100);
+                return null;
             }
-        } catch (Exception e) {
-            frmGenerateur.setStatus("Erreur lors de la génération.", Color.RED);
-        }
+
+            protected void process(java.util.List<Integer> chunks) {
+                int derniereValeur = chunks.get(chunks.size() - 1);
+                frmGenerateur.setProgress(derniereValeur, derniereValeur + "%");
+            }
+
+            protected void done() {
+                try {
+                    get(); 
+                    frmGenerateur.afficherQRCode("qrcode.png");
+                    frmGenerateur.setStatus("PDF généré avec succès !", new Color(0, 150, 0));
+                    frmGenerateur.setProgress(100, "Terminé");
+                    
+                    File pdfFile = new File("resultat.pdf");
+                    if (Desktop.isDesktopSupported() && pdfFile.exists()) {
+                        Desktop.getDesktop().open(pdfFile);
+                    }
+                } catch (Exception e) {
+                    frmGenerateur.setStatus("Erreur lors de la génération : " + e.getMessage(), Color.RED);
+                    frmGenerateur.setProgress(0, "Erreur");
+                }
+            }
+        };
+        worker.execute();
     }
 
     public static void main(String[] args) {

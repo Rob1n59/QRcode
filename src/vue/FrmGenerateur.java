@@ -17,13 +17,14 @@ public class FrmGenerateur extends JFrame {
     private JButton btnGenerer;
     private JLabel lblStatus;
     private JLabel lblImageQR;
+    private JProgressBar progressBar;
     private String imageChoisieChemin = "";
 
     public FrmGenerateur(Controle controle) {
         this.controle = controle;
         
         setTitle("Générateur QR Code PDF - Personnalisable");
-        setSize(500, 550);
+        setSize(500, 580);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
@@ -56,13 +57,18 @@ public class FrmGenerateur extends JFrame {
         lblImageQR.setHorizontalAlignment(SwingConstants.CENTER);
         add(lblImageQR, BorderLayout.CENTER);
         
-        JPanel panelBas = new JPanel(new BorderLayout());
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setStringPainted(true);
+        progressBar.setString("Prêt");
+        
+        JPanel panelBas = new JPanel(new BorderLayout(5, 5));
         btnGenerer = new JButton("Générer le PDF personnalisé");
         lblStatus = new JLabel("En attente de saisie...");
         lblStatus.setHorizontalAlignment(SwingConstants.CENTER);
         lblStatus.setForeground(Color.BLUE);
         
         panelBas.add(btnGenerer, BorderLayout.NORTH);
+        panelBas.add(progressBar, BorderLayout.CENTER);
         panelBas.add(lblStatus, BorderLayout.SOUTH);
         panelBas.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         add(panelBas, BorderLayout.SOUTH);
@@ -120,5 +126,10 @@ public class FrmGenerateur extends JFrame {
                 this.lblCheminImage.setText(imgFile.getName());
             }
         }
+    }
+
+    public void setProgress(int value, String text) {
+        progressBar.setValue(value);
+        progressBar.setString(text);
     }
 }
